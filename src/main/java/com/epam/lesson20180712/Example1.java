@@ -1,10 +1,12 @@
-package com.epam.lesson20180711;
+package com.epam.lesson20180712;
 
-public class Example5 {
+import java.util.concurrent.TimeUnit;
+
+public class Example1 {
 
     private static long value = 0;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Runnable counter = () -> {
             for (int i = 0; i < 1_000_000_000; ++i) {
                 ++value;
@@ -16,7 +18,9 @@ public class Example5 {
 
 //        while (thread.getState() != Thread.State.TERMINATED);
         // busy wait
-        while (thread.isAlive());
+        while (thread.isAlive()) {
+            TimeUnit.MILLISECONDS.sleep(500);
+        }
 
 
         System.out.println(value);
