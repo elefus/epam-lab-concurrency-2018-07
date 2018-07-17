@@ -47,6 +47,7 @@ class Counter {
     void dec() {
         synchronized (this) {
             --value;
+            inc();
         }
     }
 
