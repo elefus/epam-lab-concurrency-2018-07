@@ -1,15 +1,18 @@
-package com.epam.lesson20180712;
+package com.epam.lesson20180713;
 
-public class Example7 {
+public class Example1 {
 
-    private static volatile long value = 0;
+    private static volatile long value = 0L;
 
     public static void main(String[] args) throws InterruptedException {
+        Object lock = new Object();
+
         Runnable inc = () -> {
             for (int i = 0; i < 1_000_000; ++i) {
                 // critical section
-                {
+                synchronized (lock) {
                     ++value;
+                    // call.method() <- throw new RuntimeException();
                 }
                 // read
                 // modify
@@ -18,24 +21,25 @@ public class Example7 {
             }
         };
 
-        Runnable dec = () -> {
+        Runnable dec1 = () -> {
             for (int i = 0; i < 1_000_000; ++i) {
-                {
+                synchronized (lock) {
                     --value;
                 }
             }
         };
 
-
-
         Thread incThread = new Thread(inc);
-        Thread decThread = new Thread(dec);
+        Thread dec1Thread = new Thread(dec1);
+        Thread dec2Thread = new Thread(dec1);
 
-        decThread.start();
+        dec1Thread.start();
+        dec2Thread.start();
         incThread.start();
 
         incThread.join();
-        decThread.join();
+        dec1Thread.join();
+        dec2Thread.join();
 
         System.out.println(value);
     }
@@ -51,10 +55,14 @@ public class Example7 {
 
     // biased
     //
-    //                             0
-    //    0          <- read       0
-    //    0                        0        read ->       0
-    //    1             modify     0        modify       -1
-    //    1             store   -> 1                     -1
-    //                            -1   <-   store        -1
+    //                           object
+    //                  <-  *      0
+    //    0          <- read       0 ->
+    //    1             modify     0 ->
+    //    1             store   -> 1 ->
+    //                  * ->       1 * ->
+    //                             1        read ->       1
+    //                             1        modify        0
+    //                             0    <-  store         0
+    //                             0 <-  *
 }
