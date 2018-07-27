@@ -26,9 +26,23 @@ public class Example7 {
         Runnable dec = () -> {
             for (int i = 0; i < 1_000_000; ++i) {
                 long actual;
+                long newValue;
                 do {
-                    actual = VALUE.get();
-                } while (!VALUE.compareAndSet(actual, actual - 1));
+
+                    // T1
+                    actual = VALUE.get(); // 10
+                    newValue = actual - 1;
+
+                    // T2
+                    // get -> 10
+                    // CAS 10 -> 15
+                    // T3
+                    // get -> 15
+                    // CAS 15 -> 10
+
+                    // ABA
+
+                } while (!VALUE.compareAndSet(actual, newValue)); // 10
             }
         };
 
